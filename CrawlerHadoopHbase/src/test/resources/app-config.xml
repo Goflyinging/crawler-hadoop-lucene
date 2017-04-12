@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>url.filter.regex</name>
+        <!--和java的正则输入不一样 不需要转义 \ -->
+        <value>^((http|https)://)?((blog|my)\.csdn\.net)(/[\w-./?%&amp;=]*)?$</value>
+    </property>
+    <property>
+        <name>csdn.article.regex</name>
+        <!--和java的正则输入不一样 不需要转义 \ -->
+        <value>^http://blog.csdn.net/\w+/article/details/\d+$</value>
+    </property>
+    <!--url文件路径 目前只支持单个文件-->
+    <property>
+        <name>input.path</name>
+        <value>url</value>
+    </property>
+    <!--url集合表-->
+    <property>
+        <name>url.table.name</name>
+        <value>crawlertest</value>
+    </property>
+    <!--网页信息存放表-->
+    <property>
+        <name>html.table.name</name>
+        <value>savetest</value>
+    </property>
+    <!--解析文章存放表-->
+    <property>
+        <name>article.table.name</name>
+        <value>articletest</value>
+    </property>
+
+</configuration>
