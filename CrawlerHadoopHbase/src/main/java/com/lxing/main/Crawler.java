@@ -10,7 +10,6 @@ public class Crawler {
 //    private HtmlToXMLDriver xml_convert;
 //
 //    public Crawler() {
-//        // TODO Auto-generated constructor stub
 //        crawler = new CrawlerDriver();
 //        parser = new ParserDriver();
 //        optimizer = new OptimizerDriver();

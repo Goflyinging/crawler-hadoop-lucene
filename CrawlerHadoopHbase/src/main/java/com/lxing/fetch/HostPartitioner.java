@@ -14,7 +14,6 @@ public class HostPartitioner extends Partitioner<Text, LongWritable>{
 	 * */
 	@Override
 	public int getPartition(Text key, LongWritable value, int numReduceTasks) {
-		// TODO Auto-generated method stub
 		String url = key.toString();
 		if(url.contains("http://")){
 			url = url.replace("http://", "");
