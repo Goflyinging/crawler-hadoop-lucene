@@ -37,7 +37,7 @@ public class IndexDriver extends Configured implements Tool {
         //mapper中直接处理数据并写入hbase
         job.setNumReduceTasks(0);
         job.setOutputFormatClass(IndexOutputFormat1.class);
-        FileOutputFormat.setOutputPath(job,new Path("/lxing"));
+        FileOutputFormat.setOutputPath(job,new Path("/lxing1"));
         //map
         Scan scan = new Scan();
         scan.setCaching(500);

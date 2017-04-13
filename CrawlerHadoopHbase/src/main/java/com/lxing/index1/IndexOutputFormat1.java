@@ -38,15 +38,9 @@ public class IndexOutputFormat1 extends FileOutputFormat<ImmutableBytesWritable,
         Configuration conf = context.getConfiguration();
         FileOutputCommitter committer =
                 (FileOutputCommitter) getOutputCommitter(context);
-        //???
-
         final Path perm = committer.getWorkPath();
         logger.info("To index into " + perm);
-        //  ???
-        //final Path temp = conf.getLocalPath("_" + Integer.toString(random.nextInt()), "/index");
         final FileSystem fs = FileSystem.get(conf);
-        //fs.delete(temp, true);
-
         //建索引
         final java.nio.file.Path localPath = Paths.get("indexTemp/_" + Integer.toString(random.nextInt()));
         //删除原来建立的索引
@@ -69,7 +63,6 @@ public class IndexOutputFormat1 extends FileOutputFormat<ImmutableBytesWritable,
                 Document doc = value.get();
                 writer.addDocument(doc);
                 docCount++;
-                logger.info("写入"+docCount+"文档");
             }
 
             @Override
@@ -77,7 +70,7 @@ public class IndexOutputFormat1 extends FileOutputFormat<ImmutableBytesWritable,
                 writer.forceMerge(1);
                 writer.close();
                 fs.moveFromLocalFile(new Path(localPath.toString())
-                        ,perm);
+                        , perm);
             }
 
         };

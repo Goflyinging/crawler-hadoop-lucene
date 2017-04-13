@@ -2,9 +2,12 @@ package com.lxing.util;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.BufferedReader;
@@ -16,11 +19,17 @@ import java.io.InputStreamReader;
  */
 public class Crawler {
     public static String crawl(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        String ip = "127.0.0.1";
+        int port = 9998;
+        HttpClientBuilder build = HttpClients.custom();
+        HttpHost proxy = new HttpHost(ip, port);
+        CloseableHttpClient httpClient = build.setProxy(proxy).build();
         CloseableHttpResponse response = null;
         BufferedReader br = null;
         try {
             HttpGet httpGet = new HttpGet(url);
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(2000).setConnectTimeout(2000).build();//设置请求和传输超时时间
+            httpGet.setConfig(requestConfig);
             httpGet.setHeader("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
             response = httpClient.execute(httpGet);

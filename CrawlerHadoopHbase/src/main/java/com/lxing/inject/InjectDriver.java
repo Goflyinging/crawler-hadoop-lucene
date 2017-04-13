@@ -55,9 +55,9 @@ public class InjectDriver {
                 list.add(put);
             }
             table.put(list);
-            return 1;
         } catch (Exception e) {
             e.printStackTrace();
+            return 0;
         } finally {
             if (conn != null) {
                 try {
@@ -74,7 +74,7 @@ public class InjectDriver {
                 }
             }
         }
-        return 0;
+        return 1;
     }
 
     public static void main(String[] args) {
