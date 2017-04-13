@@ -1,5 +1,6 @@
 package com.lxing.index;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
@@ -36,6 +37,7 @@ public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, 
 			String name, final Progressable progress) throws IOException {
 
 		final Path perm = new Path(FileOutputFormat.getOutputPath(job), name);
+		//final Path perm = FileOutputFormat.getOutputPath(job);
 		final Path temp = job.getLocalPath("index/_" + Integer.toString(random.nextInt()));
 
 		LOG.info("To index into " + perm);
@@ -49,6 +51,7 @@ public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, 
 			indexConf.addFromXML(content);
 		}
 
+		//设置分词对应的类
 		String analyzerName = indexConf.getAnalyzerName();
 		Analyzer analyzer;
 		try {
@@ -59,10 +62,9 @@ public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, 
 			throw new IOException("Error in creating an analyzer object " + analyzerName);
 		}
 
-		// build locally first
+		//首先在本地建立索引，然后上传到hdfs
 		IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 		java.nio.file.Path path = Paths.get(fs.startLocalOutput(perm, temp).toString());
-		
 		iwc.setUseCompoundFile(indexConf.isUseCompoundFile());
 		iwc.setMaxBufferedDocs(indexConf.getMaxBufferedDocs());
 		LogMergePolicy mergePolicy = new LogByteSizeMergePolicy();
@@ -123,7 +125,6 @@ public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, 
 
 				try {
 					prog.start();
-
 					// optimize index
 					if (indexConf.doOptimize()) {
 						if (LOG.isInfoEnabled()) {
@@ -143,6 +144,8 @@ public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, 
 					if (LOG.isInfoEnabled()) {
 						LOG.info("Copy done.");
 					}
+					//
+
 				} finally {
 					closed.set(true);
 				}
