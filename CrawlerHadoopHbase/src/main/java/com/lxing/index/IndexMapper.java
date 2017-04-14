@@ -1,11 +1,10 @@
-package com.lxing.index1;
+package com.lxing.index;
 
 import com.lxing.domain.LuceneDocumentWritable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.lucene.document.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -9,15 +9,19 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by lxing on 2017/4/10.
  * httpclient 下载网页信息
  */
 public class Crawler {
+    public static Logger logger = LoggerFactory.getLogger(Crawler.class);
     public static String crawl(String url) {
         String ip = "127.0.0.1";
         int port = 9998;
@@ -45,8 +49,12 @@ public class Crawler {
                 }
                 return stringBuilder.toString();
             }
-        } catch (Exception e) {
+        }catch (SocketTimeoutException e1){
+            logger.error(url+": 请求超时");
+        }
+        catch (Exception e) {
             e.printStackTrace();
+
         } finally {
             if (br != null) {
                 try {
@@ -58,6 +66,13 @@ public class Crawler {
             if (response != null) {
                 try {
                     response.close();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (httpClient != null) {
+                try {
+                    httpClient.close();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }

@@ -1,15 +1,12 @@
-package com.lxing.index1;
+package com.lxing.index;
 
 import com.lxing.domain.LuceneDocumentWritable;
-import com.lxing.parse.ParserArticleMapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.MultiTableOutputFormat;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -36,7 +33,7 @@ public class IndexDriver extends Configured implements Tool {
         job.setJarByClass(IndexDriver.class);
         //mapper中直接处理数据并写入hbase
         job.setNumReduceTasks(0);
-        job.setOutputFormatClass(IndexOutputFormat1.class);
+        job.setOutputFormatClass(IndexOutputFormat.class);
         FileOutputFormat.setOutputPath(job,new Path("/lxing1"));
         //map
         Scan scan = new Scan();

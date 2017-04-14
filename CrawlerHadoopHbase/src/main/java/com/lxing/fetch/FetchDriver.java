@@ -10,9 +10,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.*;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -41,6 +39,7 @@ public class FetchDriver extends Configured implements Tool {
         Job job = Job.getInstance(conf, "FetchDriver");
         job.setJarByClass(FetchDriver.class);
         job.setReducerClass(FetchReducer.class);
+        TextOutputFormat textOutputFormat;
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         Scan scan = new Scan();
         TableMapReduceUtil.initTableMapperJob(urlTableName, scan,

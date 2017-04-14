@@ -1,155 +1,70 @@
 package com.lxing.index;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.nio.file.Paths;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.lxing.domain.LuceneDocumentWritable;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordWriter;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.LogByteSizeMergePolicy;
-import org.apache.lucene.index.LogMergePolicy;
-import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
-public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, LuceneDocumentWrapper> {
-	static final Log LOG = LogFactory.getLog(IndexOutputFormat.class);
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Random;
 
-	private Random random = new Random();
+/**
+ * Created by lxing on 2017/4/13.
+ */
+public class IndexOutputFormat extends FileOutputFormat<ImmutableBytesWritable, LuceneDocumentWritable> {
+    public static Logger logger = LoggerFactory.getLogger(IndexOutputFormat.class);
+    private Random random = new Random();
 
-	@Override
-	public RecordWriter<ImmutableBytesWritable, LuceneDocumentWrapper> getRecordWriter(final FileSystem fs, JobConf job,
-			String name, final Progressable progress) throws IOException {
+    public RecordWriter<ImmutableBytesWritable, LuceneDocumentWritable> getRecordWriter(TaskAttemptContext context) throws IOException, InterruptedException {
+        final Path outputPath = getDefaultWorkFile(context, "");
+        Configuration conf = context.getConfiguration();
+        final FileSystem fs = FileSystem.get(conf);
+        //建索引
+        final java.nio.file.Path localPath = Paths.get("/indexTemp/_" + Integer.toString(random.nextInt()));
+        //删除原来建立的索引
+        File file = localPath.toFile();
+        if (file.exists()) {
+            logger.error("文件夹已经存在，请删除！！！");
+            System.exit(0);
+        }
+        final Directory indexDir = FSDirectory.open(localPath);
+        Analyzer analyzer = new IKAnalyzer(true); //新建一个分词器实例
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        final IndexWriter writer = new IndexWriter(indexDir, config);//构造一个索引写入器
 
-		final Path perm = new Path(FileOutputFormat.getOutputPath(job), name);
-		//final Path perm = FileOutputFormat.getOutputPath(job);
-		final Path temp = job.getLocalPath("index/_" + Integer.toString(random.nextInt()));
+        return new RecordWriter<ImmutableBytesWritable, LuceneDocumentWritable>() {
+            @Override
+            public void write(ImmutableBytesWritable key, LuceneDocumentWritable value) throws IOException, InterruptedException {
+                Document doc = value.get();
+                writer.addDocument(doc);
+            }
 
-		LOG.info("To index into " + perm);
+            @Override
+            public void close(TaskAttemptContext context) throws IOException, InterruptedException {
+                writer.forceMerge(1);
+                writer.close();
+                indexDir.close();
+                logger.info("localPath:" + localPath.toString());
+                logger.info("perm:" + outputPath.toString());
+                fs.moveFromLocalFile(new Path(localPath.toString())
+                        , outputPath);
+            }
 
-		// delete old, if any
-		fs.delete(perm, true);
-
-		final IndexConfiguration indexConf = new IndexConfiguration();
-		String content = job.get("hbase.index.conf");
-		if (content != null) {
-			indexConf.addFromXML(content);
-		}
-
-		//设置分词对应的类
-		String analyzerName = indexConf.getAnalyzerName();
-		Analyzer analyzer;
-		try {
-			Class<? extends Analyzer> analyzerClass = Class.forName(analyzerName).asSubclass(Analyzer.class);
-			Constructor<? extends Analyzer> analyzerCtor = analyzerClass.getConstructor();
-			analyzer = analyzerCtor.newInstance();
-		} catch (Exception e) {
-			throw new IOException("Error in creating an analyzer object " + analyzerName);
-		}
-
-		//首先在本地建立索引，然后上传到hdfs
-		IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
-		java.nio.file.Path path = Paths.get(fs.startLocalOutput(perm, temp).toString());
-		iwc.setUseCompoundFile(indexConf.isUseCompoundFile());
-		iwc.setMaxBufferedDocs(indexConf.getMaxBufferedDocs());
-		LogMergePolicy mergePolicy = new LogByteSizeMergePolicy();
-		// 设置segment添加文档(Document)时的合并频率
-		// 值较小,建立索引的速度就较慢 //值较大,建立索引的速度就较快,>10适合批量建立索引
-		mergePolicy.setMergeFactor(indexConf.getMergeFactor());
-		// 设置segment最大合并文档(Document)数
-		// 值较小有利于追加索引的速度
-		// 值较大,适合批量建立索引和更快的搜索
-		mergePolicy.setMaxMergeDocs(indexConf.getMaxMergeDocs());
-		// if (create){
-		// iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-		// }else {
-		// iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-		// }
-		final IndexWriter writer = new IndexWriter(FSDirectory.open(path), iwc);
-		String similarityName = indexConf.getSimilarityName();
-		// Lucene的排序
-		if (similarityName != null) {
-			try {
-				Class<? extends Similarity> similarityClass = Class.forName(similarityName)
-						.asSubclass(Similarity.class);
-				Constructor<? extends Similarity> ctor = similarityClass.getConstructor(Version.class);
-				Similarity similarity = ctor.newInstance();
-				iwc.setSimilarity(similarity);
-			} catch (Exception e) {
-				throw new IOException("Error in creating a similarity object " + similarityName);
-			}
-		}
-
-		return new RecordWriter<ImmutableBytesWritable, LuceneDocumentWrapper>() {
-			AtomicBoolean closed = new AtomicBoolean(false);
-			private long docCount = 0;
-
-			public void write(ImmutableBytesWritable key, LuceneDocumentWrapper value) throws IOException {
-				Document doc = value.get();
-				writer.addDocument(doc);
-				docCount++;
-				progress.progress();
-			}
-
-			public void close(final Reporter reporter) throws IOException {
-				Thread prog = new Thread() {
-					@Override
-					public void run() {
-						while (!closed.get()) {
-							try {
-								reporter.setStatus("closing");
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								continue;
-							} catch (Throwable e) {
-								return;
-							}
-						}
-					}
-				};
-
-				try {
-					prog.start();
-					// optimize index
-					if (indexConf.doOptimize()) {
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Optimizing index.");
-						}
-						writer.forceMerge(1);
-					}
-
-					// close index
-					writer.close();
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Done indexing " + docCount + " docs.");
-					}
-
-					// copy to perm destination in dfs
-					fs.completeLocalOutput(perm, temp);
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Copy done.");
-					}
-					//
-
-				} finally {
-					closed.set(true);
-				}
-			}
-		};
-	}
+        };
+    }
 }
