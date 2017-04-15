@@ -19,22 +19,24 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-/***
- * 根据Url抓取网页信息
+/**
+ * @Description： 抓取网页信息的驱动类 @Author： lxing @Date： 16:37 2017/4/10
+ * 
+ * @modified By：
  */
 public class FetchDriver extends Configured implements Tool {
-
+    
     public static Logger logger = LoggerFactory.getLogger(FetchDriver.class);
-
+    
     private static Configuration conf = HBaseConfiguration.create();
-
+    
     static {
         conf.addResource("app-config.xml");
     }
-
-
-    public int run(String[] args) throws ClassNotFoundException, IOException,
-            InterruptedException {
+    
+    public int run(String[] args) throws ClassNotFoundException,
+                                  IOException,
+                                  InterruptedException {
         String urlTableName = conf.get("url.table.name");
         Job job = Job.getInstance(conf, "FetchDriver");
         job.setJarByClass(FetchDriver.class);
@@ -42,20 +44,25 @@ public class FetchDriver extends Configured implements Tool {
         TextOutputFormat textOutputFormat;
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         Scan scan = new Scan();
-        TableMapReduceUtil.initTableMapperJob(urlTableName, scan,
-                FetchMapper.class, ImmutableBytesWritable.class, LongWritable.class, job);
+        TableMapReduceUtil.initTableMapperJob(urlTableName,
+                                              scan,
+                                              FetchMapper.class,
+                                              ImmutableBytesWritable.class,
+                                              LongWritable.class,
+                                              job);
         job.waitForCompletion(true);
         return job.isSuccessful() ? 1 : 0;
     }
-
+    
     public static void main(String[] args) throws IOException,
-            InterruptedException {
+                                           InterruptedException {
         try {
             int returnCode = ToolRunner.run(new FetchDriver(), args);
             System.exit(returnCode);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
-
+    
 }

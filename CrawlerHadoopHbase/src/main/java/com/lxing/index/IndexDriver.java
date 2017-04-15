@@ -19,39 +19,45 @@ import org.slf4j.LoggerFactory;
  * Created by lxing on 2017/4/12.
  */
 public class IndexDriver extends Configured implements Tool {
-
+    
     public static Logger logger = LoggerFactory.getLogger(IndexDriver.class);
+    
     private static Configuration conf = HBaseConfiguration.create();
-
+    
     static {
         conf.addResource("app-config.xml");
     }
-
+    
     public int run(String[] args) throws Exception {
         String cacheArticleTable = "cache" + conf.get("article.table.name");
         Job job = Job.getInstance(conf, "IndexDriver");
         job.setJarByClass(IndexDriver.class);
-        //mapper中直接处理数据并写入hbase
+        // mapper中直接处理数据并写入hbase
         job.setNumReduceTasks(0);
         job.setOutputFormatClass(IndexOutputFormat.class);
-        FileOutputFormat.setOutputPath(job,new Path("/lxing1"));
-        //map
+        FileOutputFormat.setOutputPath(job, new Path("/lxing1"));
+        // map
         Scan scan = new Scan();
         scan.setCaching(500);
         scan.setCacheBlocks(false); // don't set to true for MR jobs
-        TableMapReduceUtil.initTableMapperJob(cacheArticleTable, scan,
-                IndexMapper.class, ImmutableBytesWritable.class, LuceneDocumentWritable.class, job);
+        TableMapReduceUtil.initTableMapperJob(cacheArticleTable,
+                                              scan,
+                                              IndexMapper.class,
+                                              ImmutableBytesWritable.class,
+                                              LuceneDocumentWritable.class,
+                                              job);
         job.waitForCompletion(true);
         return job.isSuccessful() ? 1 : 0;
     }
-
+    
     public static void main(String[] args) {
         try {
             int returnCode = ToolRunner.run(new IndexDriver(), args);
             System.exit(returnCode);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
-
+    
 }

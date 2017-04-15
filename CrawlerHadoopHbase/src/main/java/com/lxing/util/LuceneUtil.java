@@ -27,7 +27,8 @@ public class LuceneUtil {
         IndexWriter indexWriter = null;
         try {
             final Directory indexDir = FSDirectory.open(to);
-            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+            IndexWriterConfig indexWriterConfig =
+                                                new IndexWriterConfig(analyzer);
             System.out.println("正在合并索引文件!\t ");
             indexWriter = new IndexWriter(indexDir, indexWriterConfig);
             Directory fromDir = FSDirectory.open(from);
@@ -35,27 +36,28 @@ public class LuceneUtil {
             indexWriter.forceMerge(1);
             indexWriter.close();
             System.out.println("已完成合并!\t ");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("合并索引出错！");
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
                 if (indexWriter != null)
                     indexWriter.close();
-            } catch (Exception e) {
-
             }
-
+            catch (Exception e) {
+                
+            }
+            
         }
-
+        
     }
-
-
+    
     public static void main(String[] areg) {
         Path from = Paths.get("");
         Path to = Paths.get("");
         mergeIndex(from, to, new IKAnalyzer(true));
     }
-
-
+    
 }

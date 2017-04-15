@@ -13,39 +13,50 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Created by lxing on 2017/4/11.
+ * @Description： 抓取网页信息的mapper类 @Author： lxing @Date： 16:40 2017/4/10
+ * 
+ * @modified By：
  */
 public class FetchReducer extends
-        TableReducer<ImmutableBytesWritable,LongWritable, ImmutableBytesWritable> {
+                          TableReducer<ImmutableBytesWritable, LongWritable, ImmutableBytesWritable> {
+    
     public static Logger logger = LoggerFactory.getLogger(FetchReducer.class);
+    
     private String saveTable;
+    
     private String cacheSaveTable;
-
+    
     @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
+    protected void setup(Context context) throws IOException,
+                                          InterruptedException {
         super.setup(context);
         Configuration conf = context.getConfiguration();
         saveTable = conf.get("html.table.name");
         cacheSaveTable = "cache" + saveTable;
     }
-
-    public void reduce(ImmutableBytesWritable key, Iterable<LongWritable> values,
-                       Context context) throws IOException, InterruptedException {
+    
+    public void reduce(ImmutableBytesWritable key,
+                       Iterable<LongWritable> values,
+                       Context context) throws IOException,
+                                        InterruptedException {
         logger.info("Start FetchReducer...");
         String url = Bytes.toString(key.get());
-        ImmutableBytesWritable putTable1 = new ImmutableBytesWritable(Bytes.toBytes(saveTable));
-        ImmutableBytesWritable putTable2 = new ImmutableBytesWritable(Bytes.toBytes(cacheSaveTable));
+        ImmutableBytesWritable putTable1 =
+                                         new ImmutableBytesWritable(Bytes.toBytes(saveTable));
+        ImmutableBytesWritable putTable2 =
+                                         new ImmutableBytesWritable(Bytes.toBytes(cacheSaveTable));
         if (url != null && !url.equals("")) {
             logger.info("url:" + url);
             String text = Crawler.crawl(url);
-            if(text==null)
+            if (text == null)
                 return;
             Put put = new Put(key.get());
-            put.addColumn("info".getBytes(), "document".getBytes(), text.getBytes());
+            put.addColumn("info".getBytes(),
+                          "document".getBytes(),
+                          text.getBytes());
             context.write(putTable1, put);
             context.write(putTable2, put);
         }
     }
-
+    
 }
-

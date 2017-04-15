@@ -13,19 +13,23 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Created by lxing on 2017/4/11.
- * 抓取网页的mapper类
+ * @Description： 抓取网页信息的mapper类 @Author： lxing @Date： 16:40 2017/4/10
+ * 
+ * @modified By：
  */
-public class FetchMapper extends TableMapper<ImmutableBytesWritable, LongWritable> {
+public class FetchMapper extends
+                         TableMapper<ImmutableBytesWritable, LongWritable> {
+    
     public static Logger logger = LoggerFactory.getLogger(FetchMapper.class);
-
+    
     private LongWritable value = new LongWritable(1);
-
-    public void map(ImmutableBytesWritable key, Result values,
+    
+    public void map(ImmutableBytesWritable key,
+                    Result values,
                     Context context) throws IOException, InterruptedException {
         for (Cell cell : values.rawCells()) {
             if ("status".equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
-                //状态为0开始抓取
+                // 状态为0开始抓取
                 if ("0".equals(Bytes.toString(CellUtil.cloneValue(cell)))) {
                     logger.info("url：" + Bytes.toString(key.get()));
                     context.write(key, value);
@@ -33,5 +37,5 @@ public class FetchMapper extends TableMapper<ImmutableBytesWritable, LongWritabl
             }
         }
     }
-
+    
 }

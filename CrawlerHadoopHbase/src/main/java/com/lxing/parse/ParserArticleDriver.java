@@ -19,38 +19,45 @@ import org.slf4j.LoggerFactory;
  * Created by lxing on 2017/4/12.
  */
 public class ParserArticleDriver extends Configured implements Tool {
-
-    public static Logger logger = LoggerFactory.getLogger(ParserArticleDriver.class);
+    
+    public static Logger logger =
+                                LoggerFactory.getLogger(ParserArticleDriver.class);
+    
     private static Configuration conf = HBaseConfiguration.create();
-
+    
     static {
         conf.addResource("app-config.xml");
     }
-
+    
     public int run(String[] args) throws Exception {
         String cacheSaveTable = "cache" + conf.get("html.table.name");
         Job job = Job.getInstance(conf, "ParserArticleDriver");
         job.setJarByClass(ParserArticleDriver.class);
-        //mapper中直接处理数据并写入hbase
+        // mapper中直接处理数据并写入hbase
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         job.setNumReduceTasks(0);
-        //map
+        // map
         Scan scan = new Scan();
         scan.setCaching(500);
         scan.setCacheBlocks(false); // don't set to true for MR jobs
-        TableMapReduceUtil.initTableMapperJob(cacheSaveTable, scan,
-                ParserArticleMapper.class, ImmutableBytesWritable.class, Put.class, job);
+        TableMapReduceUtil.initTableMapperJob(cacheSaveTable,
+                                              scan,
+                                              ParserArticleMapper.class,
+                                              ImmutableBytesWritable.class,
+                                              Put.class,
+                                              job);
         job.waitForCompletion(true);
         return job.isSuccessful() ? 1 : 0;
     }
-
+    
     public static void main(String[] args) {
         try {
             int returnCode = ToolRunner.run(new ParserArticleDriver(), args);
             System.exit(returnCode);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
-
+    
 }
