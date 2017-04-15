@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.lxing.fetch;
 
 import org.apache.hadoop.conf.Configuration;
@@ -19,11 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-/**
- * @Description： 抓取网页信息的驱动类 @Author： lxing @Date： 16:37 2017/4/10
- * 
- * @modified By：
- */
 public class FetchDriver extends Configured implements Tool {
     
     public static Logger logger = LoggerFactory.getLogger(FetchDriver.class);
@@ -41,7 +33,6 @@ public class FetchDriver extends Configured implements Tool {
         Job job = Job.getInstance(conf, "FetchDriver");
         job.setJarByClass(FetchDriver.class);
         job.setReducerClass(FetchReducer.class);
-        TextOutputFormat textOutputFormat;
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         Scan scan = new Scan();
         TableMapReduceUtil.initTableMapperJob(urlTableName,
