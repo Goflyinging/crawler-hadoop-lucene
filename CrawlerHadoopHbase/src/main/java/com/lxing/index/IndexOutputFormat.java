@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Random;
 
-/**
- * Created by lxing on 2017/4/13.
- */
 public class IndexOutputFormat extends
                                FileOutputFormat<ImmutableBytesWritable, LuceneDocumentWritable> {
     
@@ -71,7 +68,7 @@ public class IndexOutputFormat extends
                 writer.close();
                 indexDir.close();
                 logger.info("localPath:" + localPath.toString());
-                logger.info("perm:" + outputPath.toString());
+                logger.info("outputPath:" + outputPath.toString());
                 fs.moveFromLocalFile(new Path(localPath.toString()),
                                      outputPath);
             }

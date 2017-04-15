@@ -12,11 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-/**
- * @Description： 抓取网页信息的mapper类 @Author： lxing @Date： 16:40 2017/4/10
- * 
- * @modified By：
- */
 public class FetchMapper extends
                          TableMapper<ImmutableBytesWritable, LongWritable> {
     

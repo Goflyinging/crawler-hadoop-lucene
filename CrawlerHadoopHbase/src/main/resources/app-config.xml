@@ -6,6 +6,21 @@
         <!--和java的正则输入不一样 不需要转义 \ -->
         <value>^((http|https)://)?((blog|my)\.csdn\.net)(/[\w-./?%&amp;=]*)?$</value>
     </property>
+    //hdfs上的索引库
+    <property>
+        <name>hdfs.index.path</name>
+        <value>/indexCache</value>
+    </property>
+    //从hdfs移过来的索引缓存路径
+    <property>
+        <name>localcache.index.path</name>
+        <value>D:/indexCache</value>
+    </property>
+    //本地真正的索引库
+    <property>
+        <name>local.index.path</name>
+        <value>D:/index</value>
+    </property>
     <property>
         <name>csdn.article.regex</name>
         <!--和java的正则输入不一样 不需要转义 \ -->

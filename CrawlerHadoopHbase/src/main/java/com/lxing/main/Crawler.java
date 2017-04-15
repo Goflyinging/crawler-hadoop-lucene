@@ -6,27 +6,34 @@ import com.lxing.inject.InjectDriver;
 import com.lxing.optimize.OptimizerDriver;
 import com.lxing.parse.ParserArticleDriver;
 import com.lxing.parse.ParserUrlDriver;
+import com.lxing.util.HbaseUtil;
+import com.lxing.util.LuceneUtil;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wltea.analyzer.lucene.IKAnalyzer;
+
+import java.nio.file.Paths;
 
 public class Crawler {
     
     public static Logger logger = LoggerFactory.getLogger(InjectDriver.class);
     
-    private InjectDriver injectDriver;
+    private InjectDriver injectDriver;//注入驱动
     
-    private FetchDriver fetchDriver;
+    private FetchDriver fetchDriver;//爬取驱动
     
-    private ParserUrlDriver parserUrlDriver;
+    private ParserUrlDriver parserUrlDriver;//解析URL驱动
     
-    private OptimizerDriver optimizerDriver;
+    private OptimizerDriver optimizerDriver;//去重url驱动
     
-    private ParserArticleDriver parserArticleDriver;
+    private ParserArticleDriver parserArticleDriver;//解析文章驱动
     
-    private IndexDriver indexDriver;
+    private IndexDriver indexDriver;//建立索引驱动
     
     public Crawler() {
         injectDriver = new InjectDriver();
@@ -40,8 +47,11 @@ public class Crawler {
     public static void main(String[] args) throws Exception {
         Configuration conf = HBaseConfiguration.create();
         conf.addResource("app-config.xml");
+        String outPath = conf.get("hdfs.index.path");
+        String localPath = conf.get("local.index.path");
+        String cacheLocalPath = conf.get("localcache.index.path");
         Crawler crawleMain = new Crawler();
-        int depth = 4;
+        int depth = 2;
         // 第一步： 注入待抓取的网页url
         int in = crawleMain.injectDriver.injectFromLocal(conf);
         if (in == 0) {
@@ -85,6 +95,13 @@ public class Crawler {
             logger.error("索引建立失败！！！");
             return;
         }
+        // 第五步：清空中间表，以备下次使用
+        HbaseUtil.clearCache(conf);
+        // 第六步：将索引移至本地，并与本地索引合并
+        final FileSystem fs = FileSystem.get(conf);
+        fs.moveToLocalFile(new Path(outPath),new Path(cacheLocalPath));
+        fs.deleteOnExit(new Path(outPath));
+        LuceneUtil.mergeIndex(Paths.get(cacheLocalPath),Paths.get(localPath),new IKAnalyzer(true));
         
     }
 }

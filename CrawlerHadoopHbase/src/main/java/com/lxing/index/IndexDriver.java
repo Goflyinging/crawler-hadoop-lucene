@@ -30,12 +30,13 @@ public class IndexDriver extends Configured implements Tool {
     
     public int run(String[] args) throws Exception {
         String cacheArticleTable = "cache" + conf.get("article.table.name");
+        String outPath = conf.get("hdfs.index.path");
         Job job = Job.getInstance(conf, "IndexDriver");
         job.setJarByClass(IndexDriver.class);
         // mapper中直接处理数据并写入hbase
         job.setNumReduceTasks(0);
         job.setOutputFormatClass(IndexOutputFormat.class);
-        FileOutputFormat.setOutputPath(job, new Path("/lxing1"));
+        FileOutputFormat.setOutputPath(job, new Path(outPath));
         // map
         Scan scan = new Scan();
         scan.setCaching(500);
