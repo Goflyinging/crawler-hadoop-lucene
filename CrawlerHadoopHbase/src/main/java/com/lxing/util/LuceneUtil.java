@@ -31,8 +31,26 @@ public class LuceneUtil {
                                                 new IndexWriterConfig(analyzer);
             System.out.println("正在合并索引文件!\t ");
             indexWriter = new IndexWriter(indexDir, indexWriterConfig);
-            Directory fromDir = FSDirectory.open(from);
-            indexWriter.addIndexes(fromDir);
+            File file = from.toFile();
+            File[] f = file.listFiles();
+            for (File f1 : f) {
+                if (f1.isDirectory()) {
+                    Directory fromDir = FSDirectory.open(f1.toPath());
+                    indexWriter.addIndexes(fromDir);
+                    File[] f2 = f1.listFiles();
+                    for (File f3 : f2) {
+                        f3.delete();
+                    }
+                    f1.delete();
+                    
+                }
+                else {
+                    f1.delete();
+                }
+            }
+            file.delete();
+            // Directory fromDir = FSDirectory.open(from);
+            // indexWriter.addIndexes(fromDir);
             indexWriter.forceMerge(1);
             indexWriter.close();
             System.out.println("已完成合并!\t ");

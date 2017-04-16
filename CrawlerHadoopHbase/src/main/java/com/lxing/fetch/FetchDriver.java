@@ -33,6 +33,7 @@ public class FetchDriver extends Configured implements Tool {
         Job job = Job.getInstance(conf, "FetchDriver");
         job.setJarByClass(FetchDriver.class);
         job.setReducerClass(FetchReducer.class);
+        job.setNumReduceTasks(3);
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         Scan scan = new Scan();
         TableMapReduceUtil.initTableMapperJob(urlTableName,

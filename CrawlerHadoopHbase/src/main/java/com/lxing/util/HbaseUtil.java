@@ -39,6 +39,8 @@ public class HbaseUtil {
         }
         Connection conn = ConnectionFactory.createConnection(conf);
         HBaseAdmin admin = (HBaseAdmin) conn.getAdmin();
+        admin.disableTable(cacheSaveTable);
+        admin.disableTable(cacheArticleTable);
         admin.truncateTable(TableName.valueOf(cacheSaveTable), false);
         admin.truncateTable(TableName.valueOf(cacheArticleTable), false);
         return true;

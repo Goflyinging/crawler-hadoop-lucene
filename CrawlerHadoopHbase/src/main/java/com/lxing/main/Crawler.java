@@ -47,11 +47,12 @@ public class Crawler {
     public static void main(String[] args) throws Exception {
         Configuration conf = HBaseConfiguration.create();
         conf.addResource("app-config.xml");
+        conf.addResource("hbase-site.xml");
         String outPath = conf.get("hdfs.index.path");
         String localPath = conf.get("local.index.path");
         String cacheLocalPath = conf.get("localcache.index.path");
         Crawler crawleMain = new Crawler();
-        int depth = 2;
+        int depth = 1;
         // 第一步： 注入待抓取的网页url
         int in = crawleMain.injectDriver.injectFromLocal(conf);
         if (in == 0) {

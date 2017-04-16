@@ -30,11 +30,12 @@ public class Crawler {
      * @return 抓取的内容信息
      */
     public static String crawl(String url) {
-        String ip = "127.0.0.1";
-        int port = 9998;
-        HttpClientBuilder build = HttpClients.custom();
-        HttpHost proxy = new HttpHost(ip, port);
-        CloseableHttpClient httpClient = build.setProxy(proxy).build();
+        // String ip = "127.0.0.1";
+        // int port = 9998;
+        // HttpClientBuilder build = HttpClients.custom();
+        // HttpHost proxy = new HttpHost(ip, port);
+        // CloseableHttpClient httpClient = build.setProxy(proxy).build();
+        CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = null;
         BufferedReader br = null;
         try {
@@ -67,7 +68,6 @@ public class Crawler {
         }
         catch (Exception e) {
             e.printStackTrace();
-            
         }
         finally {
             if (br != null) {

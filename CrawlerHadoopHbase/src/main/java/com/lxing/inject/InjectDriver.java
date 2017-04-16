@@ -40,7 +40,7 @@ public class InjectDriver {
             HashSet<String> set = new HashSet<String>();
             while ((s = br.readLine()) != null) {
                 logger.info("read URL：" + s);
-                set.add(s);
+                set.add(s.trim());
             }
             conn = ConnectionFactory.createConnection(conf);
             logger.info("begin inset data：");

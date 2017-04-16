@@ -21,10 +21,8 @@ public class FetchReducer extends
     
     private String cacheSaveTable;
     
-    @Override
     protected void setup(Context context) throws IOException,
                                           InterruptedException {
-        super.setup(context);
         Configuration conf = context.getConfiguration();
         saveTable = conf.get("html.table.name");
         cacheSaveTable = "cache" + saveTable;
@@ -34,23 +32,27 @@ public class FetchReducer extends
                        Iterable<LongWritable> values,
                        Context context) throws IOException,
                                         InterruptedException {
+        System.out.println("Start FetchReducer...");
         logger.info("Start FetchReducer...");
-        String url = Bytes.toString(key.get());
+        String url = Bytes.toString(key.copyBytes());
         ImmutableBytesWritable putTable1 =
-                                         new ImmutableBytesWritable(Bytes.toBytes(saveTable));
+                                         new ImmutableBytesWritable(saveTable.getBytes());
         ImmutableBytesWritable putTable2 =
-                                         new ImmutableBytesWritable(Bytes.toBytes(cacheSaveTable));
+                                         new ImmutableBytesWritable(cacheSaveTable.getBytes());
         if (url != null && !url.equals("")) {
+            System.out.println("url:" + url);
             logger.info("url:" + url);
             String text = Crawler.crawl(url);
-            if (text == null)
-                return;
-            Put put = new Put(key.get());
-            put.addColumn("info".getBytes(),
-                          "document".getBytes(),
-                          text.getBytes());
-            context.write(putTable1, put);
-            context.write(putTable2, put);
+            // String text=null;
+            System.out.println("text:" + url);
+            if (text != null) {
+                Put put = new Put(key.get());
+                put.addColumn("info".getBytes(),
+                              "document".getBytes(),
+                              text.getBytes());
+                context.write(putTable1, put);
+                context.write(putTable2, put);
+            }
         }
     }
     

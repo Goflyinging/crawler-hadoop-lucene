@@ -26,6 +26,7 @@ public class ParserArticleDriver extends Configured implements Tool {
     private static Configuration conf = HBaseConfiguration.create();
     
     static {
+        conf.addResource("hbase-site.xml");
         conf.addResource("app-config.xml");
     }
     
@@ -51,6 +52,15 @@ public class ParserArticleDriver extends Configured implements Tool {
     }
     
     public static void main(String[] args) {
+        // conf.setBoolean("mapreduce.app-submission.cross-platform", true);//
+        // 配置使用跨平台提交任务
+        // conf.set("fs.defaultFS", "hdfs://master:9000");//指定namenode
+        // conf.set("mapreduce.framework.name", "yarn"); // 指定使用yarn框架
+        // conf.set("yarn.resourcemanager.address", "master:8032"); //
+        // 指定resourcemanager
+        // conf.set("yarn.resourcemanager.scheduler.address", "master:8030");//
+        // 指定资源分配器
+        // conf.set("mapreduce.job.jar","D:\\crawle.jar");
         try {
             int returnCode = ToolRunner.run(new ParserArticleDriver(), args);
             System.exit(returnCode);

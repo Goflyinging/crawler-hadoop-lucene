@@ -47,4 +47,47 @@
         <value>articletest</value>
     </property>
 
+    <!--集群运行相关配置
+    conf.setBoolean("mapreduce.app-submission.cross-platform", true);// 配置使用跨平台提交任务
+    conf.set("fs.defaultFS", "hdfs://master:9000");//指定namenode
+    conf.set("mapreduce.framework.name", "yarn");  // 指定使用yarn框架
+    conf.set("yarn.resourcemanager.address", "master:8032"); // 指定resourcemanager
+    conf.set("yarn.resourcemanager.scheduler.address", "master:8030");// 指定资源分配器
+    conf.set("mapreduce.job.jar","D:\\crawle.jar");
+    -->
+    <property>
+        <name>mapreduce.app-submission.cross-platform</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://master:9000</value>
+    </property>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>master:8032</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.scheduler.address</name>
+        <value>master:8030</value>
+    </property>
+    <property>
+        <name>mapreduce.job.jar</name>
+        <value>D:\\crawler.jar</value>
+    </property>
+    <!--解决 hadoop下的jar包和项目下的jar包冲突-->
+    <!--conf.set("mapreduce.job.user.classpath.first","true");-->
+    <!--conf.set("mapreduce.task.classpath.user.precedence","true");-->
+    <property>
+        <name>mapreduce.job.user.classpath.first</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>mapreduce.task.classpath.user.precedence</name>
+        <value>true</value>
+    </property>
 </configuration>
