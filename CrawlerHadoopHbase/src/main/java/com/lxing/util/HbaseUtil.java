@@ -79,6 +79,31 @@ public class HbaseUtil {
             }
         }
     }
+
+    public static boolean clearAll(Configuration conf) throws IOException {
+        String urlTable = conf.get("url.table.name");
+        String saveTable = conf.get("html.table.name");
+        String cacheSaveTable = "cache" + saveTable;
+        String articleTable = conf.get("article.table.name");
+        String cacheArticleTable = "cache" + articleTable;
+        if (saveTable == null || articleTable == null) {
+            logger.error("获取表名失败");
+            return false;
+        }
+        Connection conn = ConnectionFactory.createConnection(conf);
+        HBaseAdmin admin = (HBaseAdmin) conn.getAdmin();
+        admin.disableTable(cacheSaveTable);
+        admin.disableTable(cacheArticleTable);
+        admin.disableTable(urlTable);
+        admin.disableTable(saveTable);
+        admin.disableTable(articleTable);
+        admin.truncateTable(TableName.valueOf(cacheSaveTable), false);
+        admin.truncateTable(TableName.valueOf(cacheArticleTable), false);
+        admin.truncateTable(TableName.valueOf(urlTable), false);
+        admin.truncateTable(TableName.valueOf(saveTable), false);
+        admin.truncateTable(TableName.valueOf(articleTable), false);
+        return true;
+    }
     
     public static void main(String[] args) {
         Configuration conf = HBaseConfiguration.create();

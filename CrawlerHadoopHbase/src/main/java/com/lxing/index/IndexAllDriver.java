@@ -1,6 +1,5 @@
 package com.lxing.index;
 
-import com.lxing.domain.LuceneDocumentWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -15,12 +14,14 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lxing.domain.LuceneDocumentWritable;
+
 /**
  * Created by lxing on 2017/4/12.
  */
-public class IndexDriver extends Configured implements Tool {
+public class IndexAllDriver extends Configured implements Tool {
     
-    public static Logger logger = LoggerFactory.getLogger(IndexDriver.class);
+    public static Logger logger = LoggerFactory.getLogger(IndexAllDriver.class);
     
     private static Configuration conf = HBaseConfiguration.create();
     
@@ -29,10 +30,10 @@ public class IndexDriver extends Configured implements Tool {
     }
     
     public int run(String[] args) throws Exception {
-        String cacheArticleTable = "cache" + conf.get("article.table.name");
+        String cacheArticleTable = conf.get("article.table.name");
         String outPath = conf.get("hdfs.index.path");
-        Job job = Job.getInstance(conf, "IndexDriver");
-        job.setJarByClass(IndexDriver.class);
+        Job job = Job.getInstance(conf, "IndexAllDriver");
+        job.setJarByClass(IndexAllDriver.class);
         // mapper中直接处理数据并写入hbase
         job.setNumReduceTasks(0);
         job.setOutputFormatClass(IndexOutputFormat.class);
@@ -53,7 +54,7 @@ public class IndexDriver extends Configured implements Tool {
     
     public static void main(String[] args) {
         try {
-            int returnCode = ToolRunner.run(new IndexDriver(), args);
+            int returnCode = ToolRunner.run(new IndexAllDriver(), args);
             System.exit(returnCode);
         }
         catch (Exception e) {

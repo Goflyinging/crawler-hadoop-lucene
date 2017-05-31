@@ -29,6 +29,7 @@ public class LuceneUtil {
             final Directory indexDir = FSDirectory.open(to);
             IndexWriterConfig indexWriterConfig =
                                                 new IndexWriterConfig(analyzer);
+            indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
             System.out.println("正在合并索引文件!\t ");
             indexWriter = new IndexWriter(indexDir, indexWriterConfig);
             File file = from.toFile();
@@ -36,6 +37,7 @@ public class LuceneUtil {
             for (File f1 : f) {
                 if (f1.isDirectory()) {
                     Directory fromDir = FSDirectory.open(f1.toPath());
+
                     indexWriter.addIndexes(fromDir);
                     File[] f2 = f1.listFiles();
                     for (File f3 : f2) {

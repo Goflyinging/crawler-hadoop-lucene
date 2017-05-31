@@ -36,7 +36,6 @@ public class IndexOutputFormat extends
         final Path outputPath = getDefaultWorkFile(context, "");
         Configuration conf = context.getConfiguration();
         final FileSystem fs = FileSystem.get(conf);
-        // 建索引
         final java.nio.file.Path localPath =
                                            Paths.get("/indexTemp/_"
                                                      + Integer.toString(random.nextInt()));

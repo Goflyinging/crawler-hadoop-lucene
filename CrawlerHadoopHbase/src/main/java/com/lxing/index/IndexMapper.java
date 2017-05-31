@@ -35,17 +35,17 @@ public class IndexMapper extends
         Field keyField = new StoredField("rowkey", rowKey);
         doc.add(keyField);
         // author 只索引 不分词 不存储
-        if (author != null || !author.trim().equals("")) {
+        if (author != null && !author.trim().equals("")) {
             Field authorField =
                               new StringField("author", author, Field.Store.NO);
             doc.add(authorField);
         }
         // title content索引 分词 不存储
-        if (title != null || !title.trim().equals("")) {
+        if (title != null && !title.trim().equals("")) {
             Field titleField = new TextField("title", title, Field.Store.NO);
             doc.add(titleField);
         }
-        if (content != null || !content.equals("")) {
+        if (content != null && !content.equals("")) {
             Field contentField = new TextField("content",
                                                content,
                                                Field.Store.NO);

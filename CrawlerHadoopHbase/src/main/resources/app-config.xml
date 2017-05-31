@@ -1,22 +1,38 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
+    <!--设置爬虫深度-->
+    <property>
+        <name>crawler.depth</name>
+        <value>1</value>
+    </property>
+    <!--jar 目录-->
+    <property>
+        <name>mapreduce.job.jar</name>
+        <value>D:\\crawler.jar</value>
+    </property>
+    <!--url文件路径 目前只支持单个文件-->
+    <property>
+        <name>input.path</name>
+        <value>D:\\url</value>
+    </property>
+    <!--需要抓取的网页正则表达式-->
     <property>
         <name>url.filter.regex</name>
         <!--和java的正则输入不一样 不需要转义 \ -->
         <value>^((http|https)://)?((blog|my)\.csdn\.net)(/[\w-./?%&amp;=]*)?$</value>
     </property>
-    //hdfs上的索引库
+    <!--hdfs上的索引库-->
     <property>
         <name>hdfs.index.path</name>
         <value>/indexCache</value>
     </property>
-    //从hdfs移过来的索引缓存路径
+    <!--从hdfs移过来的索引缓存路径-->
     <property>
         <name>localcache.index.path</name>
         <value>D:/indexCache</value>
     </property>
-    //本地真正的索引库
+    <!--本地真正的索引库-->
     <property>
         <name>local.index.path</name>
         <value>D:/index</value>
@@ -26,11 +42,7 @@
         <!--和java的正则输入不一样 不需要转义 \ -->
         <value>^http://blog.csdn.net/\w+/article/details/\d+$</value>
     </property>
-    <!--url文件路径 目前只支持单个文件-->
-    <property>
-        <name>input.path</name>
-        <value>url</value>
-    </property>
+
     <!--url集合表-->
     <property>
         <name>url.table.name</name>
@@ -75,10 +87,7 @@
         <name>yarn.resourcemanager.scheduler.address</name>
         <value>master:8030</value>
     </property>
-    <property>
-        <name>mapreduce.job.jar</name>
-        <value>D:\\crawler.jar</value>
-    </property>
+
     <!--解决 hadoop下的jar包和项目下的jar包冲突-->
     <!--conf.set("mapreduce.job.user.classpath.first","true");-->
     <!--conf.set("mapreduce.task.classpath.user.precedence","true");-->

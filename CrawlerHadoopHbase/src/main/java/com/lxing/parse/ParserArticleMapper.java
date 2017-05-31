@@ -85,8 +85,9 @@ public class ParserArticleMapper extends
                       "author".getBytes(),
                       article.getAuthor().getBytes());
         put.addColumn("info".getBytes(),
-                      "id".getBytes(),
-                      article.getId().getBytes());
+                      "date".getBytes(),
+                      article.getDate().getBytes());
+        System.out.println(article.getDate());
         put.addColumn("info".getBytes(),
                       "content".getBytes(),
                       article.getContent().getBytes());

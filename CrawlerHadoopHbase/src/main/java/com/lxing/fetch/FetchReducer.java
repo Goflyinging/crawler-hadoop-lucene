@@ -32,7 +32,6 @@ public class FetchReducer extends
                        Iterable<LongWritable> values,
                        Context context) throws IOException,
                                         InterruptedException {
-        System.out.println("Start FetchReducer...");
         logger.info("Start FetchReducer...");
         String url = Bytes.toString(key.copyBytes());
         ImmutableBytesWritable putTable1 =
@@ -40,11 +39,8 @@ public class FetchReducer extends
         ImmutableBytesWritable putTable2 =
                                          new ImmutableBytesWritable(cacheSaveTable.getBytes());
         if (url != null && !url.equals("")) {
-            System.out.println("url:" + url);
             logger.info("url:" + url);
             String text = Crawler.crawl(url);
-            // String text=null;
-            System.out.println("text:" + url);
             if (text != null) {
                 Put put = new Put(key.get());
                 put.addColumn("info".getBytes(),
